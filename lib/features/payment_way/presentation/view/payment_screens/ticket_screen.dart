@@ -31,7 +31,7 @@ class TicketScreen extends StatelessWidget {
     required this.ticketId,
   });
 
-  /// 🔥 PDF Download
+  /// 🔥 PDF Download (متعدل)
   void _downloadTicket() async {
     await generateTicketPDF(
       from: from,
@@ -42,6 +42,8 @@ class TicketScreen extends StatelessWidget {
       name: name,
       price: price,
       ticketId: ticketId,
+      trainType: trainType,
+      bookingType: bookingType,
     );
   }
 
@@ -63,13 +65,13 @@ class TicketScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final qrData =
         """
-    ID: $ticketId
-    Train: $train
-    Coach: $coach
-     Seat: $seat
-     From: $from
-     To: $to
-     """;
+ID: $ticketId
+Train: $train
+Coach: $coach
+Seat: $seat
+From: $from
+To: $to
+""";
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -238,7 +240,6 @@ class TicketScreen extends StatelessWidget {
     );
   }
 
-  /// 🔥 Station Text
   Widget _stationText(String text) {
     return Text(
       text,
@@ -247,7 +248,6 @@ class TicketScreen extends StatelessWidget {
     );
   }
 
-  /// 🔥 Info Row
   Widget _infoRow(String en, String ar, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -294,18 +294,6 @@ class TicketScreen extends StatelessWidget {
   }
 }
 
-Future<void> generateTicketPDF({
-  required String from,
-  required String to,
-  required String train,
-  required String coach,
-  required String seat,
-  required String name,
-  required String price,
-  required String ticketId,
-}) async {}
-
-/// ✂️ dashed line
 class DashedLine extends StatelessWidget {
   const DashedLine({super.key});
 

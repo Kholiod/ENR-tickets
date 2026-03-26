@@ -34,12 +34,12 @@ flutter:
     - assets/fonts/   # 🔥 مهم جدًا (مش ملف واحد)
 
   fonts:
-  - family: Cairo
+  - family: HelveticaWorld
     fonts:
-      - asset: assets/fonts/Cairo-Regular.ttf
-      - asset: assets/fonts/Cairo-Bold-3.ttf
+     
+      - asset: assets/fonts/HelveticaWorld-Regular.ttf
         weight: 700
 
-  - family: NotoArabic
+  - family: Amiri
     fonts:
-      - asset: assets/fonts/NotoSansArabic-Regular.ttf
+      - asset: assets/fonts/Amiri-Regular.ttf

@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
 
       /// 🔥 هنا استخدمنا Cairo بدل Quicksand
-      theme: ThemeData(fontFamily: "Cairo"),
+      theme: ThemeData(fontFamily: "Amiri"),
 
       home: const CreateAccount(),
     );
