@@ -12,7 +12,26 @@ import 'package:enr_tickets/features/payment_way/presentation/view/payment_scree
 import 'package:enr_tickets/features/payment_way/presentation/view/payment_screens/instapay_screen.dart';
 
 class PaymentWay extends StatelessWidget {
-  const PaymentWay({super.key});
+  final String train;
+  final String trainType;
+  final String coach;
+  final List seats;
+
+  const PaymentWay({
+    super.key,
+    required this.train,
+    required this.trainType,
+    required this.coach,
+    required this.seats,
+  });
+
+  /// 💰 حساب السعر
+  int getSeatPrice() {
+    if (train == "185") return 75;
+    if (train == "2009") return 150;
+    if (train == "2031") return 200;
+    return 100;
+  }
 
   /// 🔥 الكارد
   Widget paymentItem(BuildContext context, String title, String imagePath) {
@@ -23,11 +42,11 @@ class PaymentWay extends StatelessWidget {
     return Expanded(
       child: GestureDetector(
         onTap: () {
-          provider.selectMethod(title); // ✔ تحديد فقط
+          provider.selectMethod(title);
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          height: 120,
+          height: 110,
           margin: const EdgeInsets.all(6),
           padding: const EdgeInsets.all(10),
           transform: isSelected
@@ -79,6 +98,9 @@ class PaymentWay extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = Provider.of<PaymentProvider>(context);
 
+    /// 💰 السعر الكلي
+    final totalPrice = seats.length * getSeatPrice();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -108,9 +130,14 @@ class PaymentWay extends StatelessWidget {
               const Gap(20),
               CustomDivider(),
 
-              /// Amount
+              /// 💰 Amount
               const Gap(20),
-              Center(child: Text("200.00 EGP", style: Styles.textStyle27)),
+              Center(
+                child: Text(
+                  "$totalPrice EGP",
+                  style: Styles.textStyle27.copyWith(color: Colors.red),
+                ),
+              ),
 
               const Gap(20),
               CustomDivider(),
@@ -199,7 +226,13 @@ class PaymentWay extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const CardPaymentScreen(),
+                        builder: (_) => CardPaymentScreen(
+                          train: train,
+                          trainType: trainType,
+                          coach: coach,
+                          seats: seats,
+                          price: totalPrice.toString(),
+                        ),
                       ),
                     );
                   }
@@ -209,14 +242,30 @@ class PaymentWay extends StatelessWidget {
                       provider.selectedMethod == "Orange") {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const WalletScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => WalletScreen(
+                          train: train,
+                          trainType: trainType,
+                          coach: coach,
+                          seats: seats,
+                          price: totalPrice.toString(),
+                        ),
+                      ),
                     );
                   }
                   /// ⚡ InstaPay
                   else if (provider.selectedMethod == "InstaPay") {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const InstaPayScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => InstaPayScreen(
+                          train: train,
+                          trainType: trainType,
+                          coach: coach,
+                          seats: seats,
+                          price: totalPrice.toString(),
+                        ),
+                      ),
                     );
                   }
                   /// 🧾 Fawry
@@ -230,15 +279,15 @@ class PaymentWay extends StatelessWidget {
                 },
                 child: Container(
                   width: double.infinity,
-                  height: 55,
+                  height: 50,
                   decoration: BoxDecoration(
                     color: appbarColor,
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(25),
                   ),
                   child: const Center(
                     child: Text(
                       "Pay Now",
-                      style: TextStyle(color: Colors.white, fontSize: 18),
+                      style: TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ),
                 ),

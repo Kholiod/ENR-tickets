@@ -10,6 +10,8 @@ import 'package:enr_tickets/features/log_in/presentation/view/log_in.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:provider/provider.dart';
+import 'package:enr_tickets/core/providers/user_provider.dart';
 
 class CreateAccountBody extends StatefulWidget {
   const CreateAccountBody({super.key});
@@ -19,13 +21,29 @@ class CreateAccountBody extends StatefulWidget {
 }
 
 class _CreateAccountBodyState extends State<CreateAccountBody> {
-  final GlobalKey<FormState> formKey = GlobalKey();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  TextEditingController nameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
+
+  /// 🔥 submit function (واحدة بس بدل التكرار)
+  void submit() {
+    if (formKey.currentState!.validate()) {
+      final user = Provider.of<UserProvider>(context, listen: false);
+
+      user.setUser(
+        newName: nameController.text.trim(),
+        newPhone: phoneController.text.trim(),
+        newEmail: emailController.text.trim(),
+      );
+
+      context.read<CreatUserCubit>().createUser();
+    }
+  }
 
   @override
   void dispose() {
@@ -43,7 +61,7 @@ class _CreateAccountBodyState extends State<CreateAccountBody> {
       listener: (context, state) {
         if (state is CreatUserSuccess) {
           Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => LogIn()),
+            MaterialPageRoute(builder: (_) => const LogIn()),
             (route) => false,
           );
         } else if (state is CreatUserFailure) {
@@ -53,8 +71,6 @@ class _CreateAccountBodyState extends State<CreateAccountBody> {
         }
       },
       builder: (context, state) {
-        final cubit = context.read<CreatUserCubit>();
-
         return SingleChildScrollView(
           child: Form(
             key: formKey,
@@ -62,10 +78,8 @@ class _CreateAccountBodyState extends State<CreateAccountBody> {
               children: [
                 const Gap(13),
 
-                /// Logo
-                CustomLogo(),
+                const CustomLogo(),
 
-                /// 🔥 العنوان
                 Text(
                   sign_up_title,
                   style: const TextStyle(
@@ -74,44 +88,38 @@ class _CreateAccountBodyState extends State<CreateAccountBody> {
                   ),
                 ),
 
-                /// الفورم
+                /// 🔥 الفورم (هنا حلينا المشكلة)
                 FormFeildViewSignIn(
                   nameController: nameController,
                   emailController: emailController,
                   phoneController: phoneController,
                   passwordController: passwordController,
                   confirmPasswordController: confirmPasswordController,
+                  onSubmit: submit, // ✅ مهم جدًا
                 ),
 
                 const Gap(10),
 
-                /// زرار
                 state is CreatUserLoading
                     ? const CircularProgressIndicator()
                     : VerifyButton(
                         title: sign_up_button,
-                        onTap: () {
-                          if (formKey.currentState!.validate()) {
-                            cubit.createUser();
-                          }
-                        },
+                        onTap: submit, // ✅ نفس الفنكشن
                       ),
 
                 const Gap(15),
 
-                /// social
-                SignInVia(),
+                const SignInVia(),
                 const Gap(15),
-                SignInMethodsView(),
+                const SignInMethodsView(),
 
                 const Gap(15),
 
-                /// login text
                 CustomHaveAccountTextButton(
                   title: arlreadyaccount,
                   onPressed: () {
                     Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (_) => LogIn()),
+                      MaterialPageRoute(builder: (_) => const LogIn()),
                       (route) => false,
                     );
                   },

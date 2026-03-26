@@ -14,6 +14,7 @@ import 'package:enr_tickets/features/log_in/presentation/view/widgets/sign_metho
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:enr_tickets/features/create_account/presentation/view/create_account.dart';
 
 class LogInBody extends StatefulWidget {
   const LogInBody({super.key});

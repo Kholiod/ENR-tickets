@@ -10,21 +10,18 @@ class HeaderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        /// Steps
+        /// 🔥 Steps (تم تصغيره)
         Container(
           alignment: Alignment.center,
-          height: MediaQuery.sizeOf(context).height * 0.05,
+          height: 30, // 👈 بدل MediaQuery
 
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(0), // اختياري
-            /// 🔥 نفس Gradient الزرار
             gradient: LinearGradient(
               colors: [
                 Colors.red.shade800,
                 Colors.red.shade400,
                 Colors.red.shade400,
-
-                Colors.grey.shade200,
+                const Color.fromARGB(255, 255, 0, 0),
               ],
               stops: const [0.0, 0.35, 0.65, 1.0],
               begin: Alignment.topLeft,
@@ -33,27 +30,30 @@ class HeaderWidget extends StatelessWidget {
           ),
 
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Text(
                 "1 Timetable",
                 style: Styles.textStyle19.copyWith(
+                  fontSize: 13, // 🔥 صغر الخط
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const Gap(10),
+              const Gap(5),
               Text(
                 "2 Select seat",
                 style: Styles.textStyle19.copyWith(
+                  fontSize: 13,
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const Gap(10),
+              const Gap(5),
               Text(
                 "3 Personal",
                 style: Styles.textStyle19.copyWith(
+                  fontSize: 13,
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
@@ -62,9 +62,9 @@ class HeaderWidget extends StatelessWidget {
           ),
         ),
 
-        /// Legend
+        /// 🔥 Legend (تم تصغيره)
         Container(
-          height: MediaQuery.sizeOf(context).height * 0.05,
+          height: 35, // 👈 أصغر
           color: Colors.white,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -83,16 +83,19 @@ class HeaderWidget extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 15,
-          height: 15,
-          margin: const EdgeInsets.symmetric(horizontal: 6),
+          width: 10, // 🔥 أصغر
+          height: 10,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
             color: color,
             shape: BoxShape.circle,
-            border: Border.all(),
+            border: Border.all(width: 0.5),
           ),
         ),
-        Text(text),
+        Text(
+          text,
+          style: const TextStyle(fontSize: 12), // 🔥 أصغر
+        ),
       ],
     );
   }

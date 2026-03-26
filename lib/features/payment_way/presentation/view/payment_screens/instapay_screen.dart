@@ -1,9 +1,24 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'ticket_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:enr_tickets/core/providers/user_provider.dart';
 
 class InstaPayScreen extends StatefulWidget {
-  const InstaPayScreen({super.key});
+  final String train;
+  final String trainType;
+  final String coach;
+  final List seats;
+  final String price;
+
+  const InstaPayScreen({
+    super.key,
+    required this.train,
+    required this.trainType,
+    required this.coach,
+    required this.seats,
+    required this.price,
+  });
 
   @override
   State<InstaPayScreen> createState() => _InstaPayScreenState();
@@ -21,7 +36,6 @@ class _InstaPayScreenState extends State<InstaPayScreen> {
   int seconds = 30;
   Timer? timer;
 
-  /// ⏱ start countdown
   void startTimer() {
     seconds = 30;
     timer?.cancel();
@@ -37,10 +51,12 @@ class _InstaPayScreenState extends State<InstaPayScreen> {
   @override
   void dispose() {
     timer?.cancel();
+    input.dispose();
+    otp.dispose();
     super.dispose();
   }
 
-  /// 💳 fake payment loading
+  /// 💳 fake payment
   void fakePayment() async {
     setState(() => isLoading = true);
 
@@ -48,16 +64,34 @@ class _InstaPayScreenState extends State<InstaPayScreen> {
 
     setState(() => isLoading = false);
 
+    /// 🔥 seats
+    String seatNumbers = widget.seats.map((e) => e.number).join(",");
+
+    /// 🔥 ticketId
+    String ticketId =
+        "${widget.train}_${seatNumbers}_${DateTime.now().millisecondsSinceEpoch}";
+
+    /// 🔥 user provider
+    final user = Provider.of<UserProvider>(context, listen: false);
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (_) => const TicketScreen(
+        builder: (_) => TicketScreen(
           from: "Cairo",
-          to: "Tanta",
-          train: "903",
-          seat: "A1",
+          to: "Sohag",
+          train: widget.train,
+          trainType: widget.trainType,
+          coach: widget.coach,
+          seat: seatNumbers,
           time: "06:00 AM",
-          name: "Khaled",
+
+          /// ✅ الاسم بس
+          name: user.name.isNotEmpty ? user.name : "Passenger",
+
+          price: widget.price,
+          bookingType: "ذهاب فقط",
+          ticketId: ticketId,
         ),
       ),
     );
@@ -85,7 +119,6 @@ class _InstaPayScreenState extends State<InstaPayScreen> {
                     return "Enter data";
                   }
 
-                  /// لو رقم
                   if (RegExp(r'^[0-9]+$').hasMatch(value)) {
                     if (!RegExp(r'^01[0-9]{9}$').hasMatch(value)) {
                       return "Invalid phone";
@@ -134,7 +167,6 @@ class _InstaPayScreenState extends State<InstaPayScreen> {
 
                 const SizedBox(height: 10),
 
-                /// ⏱ Countdown
                 Text(
                   seconds == 0 ? "Resend Code" : "Resend in $seconds s",
                   style: TextStyle(
@@ -144,18 +176,14 @@ class _InstaPayScreenState extends State<InstaPayScreen> {
 
                 const SizedBox(height: 20),
 
-                /// 🔁 Resend
                 if (seconds == 0)
                   TextButton(
-                    onPressed: () {
-                      startTimer();
-                    },
+                    onPressed: startTimer,
                     child: const Text("Resend Code"),
                   ),
 
                 const SizedBox(height: 20),
 
-                /// 💳 Confirm
                 isLoading
                     ? const CircularProgressIndicator()
                     : ElevatedButton(

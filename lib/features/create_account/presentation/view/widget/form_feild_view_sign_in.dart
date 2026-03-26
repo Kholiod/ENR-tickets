@@ -1,14 +1,16 @@
-import 'package:enr_tickets/core/utils/strings.dart';
-import 'package:enr_tickets/core/utils/validators.dart';
-import 'package:enr_tickets/core/widget/custom_form_feild.dart';
 import 'package:flutter/material.dart';
+import 'package:enr_tickets/core/widget/custom_form_feild.dart';
 
-class FormFeildViewSignIn extends StatelessWidget {
+class FormFeildViewSignIn extends StatefulWidget {
   final TextEditingController nameController;
   final TextEditingController emailController;
   final TextEditingController phoneController;
   final TextEditingController passwordController;
   final TextEditingController confirmPasswordController;
+
+  /// 🔥 مهم
+  final VoidCallback onSubmit;
+
   const FormFeildViewSignIn({
     super.key,
     required this.nameController,
@@ -16,48 +18,78 @@ class FormFeildViewSignIn extends StatelessWidget {
     required this.phoneController,
     required this.passwordController,
     required this.confirmPasswordController,
+    required this.onSubmit,
   });
+
+  @override
+  State<FormFeildViewSignIn> createState() => _FormFeildViewSignInState();
+}
+
+class _FormFeildViewSignInState extends State<FormFeildViewSignIn> {
+  final nameFocus = FocusNode();
+  final emailFocus = FocusNode();
+  final phoneFocus = FocusNode();
+  final passwordFocus = FocusNode();
+  final confirmFocus = FocusNode();
+
+  @override
+  void dispose() {
+    nameFocus.dispose();
+    emailFocus.dispose();
+    phoneFocus.dispose();
+    passwordFocus.dispose();
+    confirmFocus.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         CustomFormFeild(
-          hint: fullnameuser,
+          hint: "Name",
           icon: Icons.person,
-          controller: nameController,
-          validator: Validators.nameValidator,
+          controller: widget.nameController,
+          focusNode: nameFocus,
+          nextFocus: emailFocus,
         ),
+
         CustomFormFeild(
-          hint: email,
-          icon: Icons.email_rounded,
-          controller: emailController,
-          validator: Validators.emailValidator,
+          hint: "Email",
+          icon: Icons.email,
+          controller: widget.emailController,
+          focusNode: emailFocus,
+          nextFocus: phoneFocus,
         ),
+
         CustomFormFeild(
-          hint: phoneNumber,
+          hint: "Phone",
           icon: Icons.phone,
-          controller: phoneController,
-          keyboardType: TextInputType.phone,
-          validator: Validators.phoneValidator,
+          controller: widget.phoneController,
+          focusNode: phoneFocus,
+          nextFocus: passwordFocus,
         ),
+
         CustomFormFeild(
-          hint: password,
-          icon: Icons.lock_outline,
-          controller: passwordController,
+          hint: "Password",
+          icon: Icons.lock,
+          controller: widget.passwordController,
           obscureText: true,
-          validator: Validators.passwordValidator,
+          focusNode: passwordFocus,
+          nextFocus: confirmFocus,
         ),
+
         CustomFormFeild(
-          hint: confirmpassword,
-          icon: Icons.lock_outline,
-          controller: confirmPasswordController,
+          hint: "Confirm Password",
+          icon: Icons.lock,
+          controller: widget.confirmPasswordController,
           obscureText: true,
-          validator: (value) {
-            if (value != passwordController.text) {
-              return "Passwords do not match";
-            }
-            return null;
+          focusNode: confirmFocus,
+
+          /// 🔥 Enter الأخير
+          onSubmit: () {
+            FocusScope.of(context).unfocus();
+            widget.onSubmit();
           },
         ),
       ],

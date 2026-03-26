@@ -1,9 +1,24 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'ticket_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:enr_tickets/core/providers/user_provider.dart';
 
 class WalletScreen extends StatefulWidget {
-  const WalletScreen({super.key});
+  final String train;
+  final String trainType;
+  final String coach;
+  final List seats;
+  final String price;
+
+  const WalletScreen({
+    super.key,
+    required this.train,
+    required this.trainType,
+    required this.coach,
+    required this.seats,
+    required this.price,
+  });
 
   @override
   State<WalletScreen> createState() => _WalletScreenState();
@@ -12,8 +27,8 @@ class WalletScreen extends StatefulWidget {
 class _WalletScreenState extends State<WalletScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  TextEditingController phone = TextEditingController();
-  TextEditingController otp = TextEditingController();
+  final TextEditingController phone = TextEditingController();
+  final TextEditingController otp = TextEditingController();
 
   bool showOtp = false;
   bool isLoading = false;
@@ -21,7 +36,6 @@ class _WalletScreenState extends State<WalletScreen> {
   int seconds = 30;
   Timer? timer;
 
-  /// ⏱ countdown
   void startTimer() {
     seconds = 30;
     timer?.cancel();
@@ -37,6 +51,8 @@ class _WalletScreenState extends State<WalletScreen> {
   @override
   void dispose() {
     timer?.cancel();
+    phone.dispose();
+    otp.dispose();
     super.dispose();
   }
 
@@ -48,16 +64,34 @@ class _WalletScreenState extends State<WalletScreen> {
 
     setState(() => isLoading = false);
 
+    /// 🔥 seats
+    String seatNumbers = widget.seats.map((e) => e.number).join(",");
+
+    /// 🔥 ticketId
+    String ticketId =
+        "${widget.train}_${seatNumbers}_${DateTime.now().millisecondsSinceEpoch}";
+
+    /// 🔥 user provider
+    final user = Provider.of<UserProvider>(context, listen: false);
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (_) => const TicketScreen(
+        builder: (_) => TicketScreen(
           from: "Cairo",
-          to: "Tanta",
-          train: "903",
-          seat: "A1",
+          to: "Sohag",
+          train: widget.train,
+          trainType: widget.trainType,
+          coach: widget.coach,
+          seat: seatNumbers,
           time: "06:00 AM",
-          name: "Khaled",
+
+          /// ✅ الاسم بس
+          name: user.name.isNotEmpty ? user.name : "Passenger",
+
+          price: widget.price,
+          bookingType: "ذهاب فقط",
+          ticketId: ticketId,
         ),
       ),
     );
@@ -73,7 +107,7 @@ class _WalletScreenState extends State<WalletScreen> {
           key: _formKey,
           child: Column(
             children: [
-              /// 📱 Phone
+              /// 📱 Phone (UI بس)
               TextFormField(
                 controller: phone,
                 keyboardType: TextInputType.phone,
@@ -96,7 +130,6 @@ class _WalletScreenState extends State<WalletScreen> {
 
               const SizedBox(height: 20),
 
-              /// 🔥 Send Code
               if (!showOtp)
                 ElevatedButton(
                   onPressed: () {
@@ -108,7 +141,6 @@ class _WalletScreenState extends State<WalletScreen> {
                   child: const Text("Send Code"),
                 ),
 
-              /// 🔥 OTP
               if (showOtp) ...[
                 const SizedBox(height: 20),
 
@@ -132,7 +164,6 @@ class _WalletScreenState extends State<WalletScreen> {
 
                 const SizedBox(height: 10),
 
-                /// ⏱ Countdown
                 Text(
                   seconds == 0 ? "Resend Code" : "Resend in $seconds s",
                   style: TextStyle(
@@ -142,18 +173,14 @@ class _WalletScreenState extends State<WalletScreen> {
 
                 const SizedBox(height: 20),
 
-                /// 🔁 Resend
                 if (seconds == 0)
                   TextButton(
-                    onPressed: () {
-                      startTimer();
-                    },
+                    onPressed: startTimer,
                     child: const Text("Resend Code"),
                   ),
 
                 const SizedBox(height: 20),
 
-                /// 💳 Confirm
                 isLoading
                     ? const CircularProgressIndicator()
                     : ElevatedButton(

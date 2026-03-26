@@ -13,31 +13,47 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 
 class SeatPage extends StatelessWidget {
-  const SeatPage({super.key});
+  final String trainNumber;
+  final String trainType;
+  final int coachNumber;
+  final int seatCount;
+
+  const SeatPage({
+    super.key,
+    required this.trainNumber,
+    required this.trainType,
+    required this.coachNumber,
+    required this.seatCount,
+  });
+
+  /// 💰 سعر الكرسي
+  int getSeatPrice() {
+    if (trainNumber == "185") return 75;
+    if (trainNumber == "2009") return 150;
+    if (trainNumber == "2031") return 200;
+    return 100;
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => SeatSelectionCubit()..loadSeats(),
+      create: (_) => SeatSelectionCubit()..loadSeats(seatCount),
       child: Builder(
         builder: (context) {
           return Scaffold(
             backgroundColor: Colors.white,
+
             appBar: AppBar(
               title: Text(
-                "Select Seat",
+                "Coach $coachNumber",
                 style: Styles.textStyle20.copyWith(color: Colors.white),
               ),
               leading: IconButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
               ),
-
               backgroundColor: Colors.transparent,
               elevation: 0,
-
               flexibleSpace: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -53,65 +69,95 @@ class SeatPage extends StatelessWidget {
                   ),
                 ),
               ),
-
-              titleTextStyle: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-
               centerTitle: true,
             ),
-            body: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 10),
-              child: Container(
-                color: Colors.grey[100],
+
+            body: SizedBox(
+              width: double.infinity,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 10,
+                ),
                 child: Column(
                   children: [
+                    /// 🚆 بيانات القطر
+                    Text(
+                      "Train: $trainNumber | Type: $trainType",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+
                     const HeaderWidget(),
                     const SizedBox(height: 20),
-                    const SeatGridWidget(),
+
+                    /// 🔥 التعديل هنا
+                    SeatGridWidget(
+                      seatCount: seatCount,
+                      trainType: trainType, // ✅ الصح
+                    ),
+
                     const Gap(10),
 
+                    /// 💰 السعر + الزرار
                     BlocBuilder<SeatSelectionCubit, SeatSelectionState>(
                       builder: (context, state) {
-                        // ignore: unused_local_variable
-                        bool hasSelection = false;
+                        final cubit = context.read<SeatSelectionCubit>();
+                        final selectedSeats = cubit.getSelectedSeats();
 
-                        if (state is SeatSelectionLoaded) {
-                          hasSelection = state.seats.any(
-                            (seat) => seat.status == SeatStatus.selected,
-                          );
-                        }
+                        final totalPrice =
+                            selectedSeats.length * getSeatPrice();
 
-                        return BookingBotton(
-                          onPressed: () {
-                            final cubit = context.read<SeatSelectionCubit>();
-                            if (cubit.getSelectedSeats().isEmpty) {
-                              CustomDialog.show(
-                                context: context,
+                        return Column(
+                          children: [
+                            /// 💰 السعر
+                            if (selectedSeats.isNotEmpty)
+                              Text(
+                                "Total: $totalPrice EGP",
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,
+                                ),
+                              ),
 
-                                title: "Noticeable",
-                                description: "You must choose your seat first.",
-                                dialogType: DialogType.noHeader,
-                              );
-                            } else {
-                              CustomDialog.show(
-                                context: context,
+                            const SizedBox(height: 10),
 
-                                title: "Alert",
-                                description: "Are you sure about this booking?",
-                                dialogType: DialogType.noHeader,
-                                btnOkOnPress: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => PaymentWay(),
-                                    ),
+                            /// 🔘 زرار الحجز
+                            BookingBotton(
+                              onPressed: () {
+                                if (selectedSeats.isEmpty) {
+                                  CustomDialog.show(
+                                    context: context,
+                                    title: "Noticeable",
+                                    description:
+                                        "You must choose your seat first.",
+                                    dialogType: DialogType.noHeader,
                                   );
-                                },
-                              );
-                            }
-                          },
+                                } else {
+                                  CustomDialog.show(
+                                    context: context,
+                                    title: "Alert",
+                                    description:
+                                        "Are you sure about this booking?",
+                                    dialogType: DialogType.noHeader,
+                                    btnOkOnPress: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => PaymentWay(
+                                            train: trainNumber,
+                                            trainType: trainType,
+                                            coach: coachNumber.toString(),
+                                            seats: selectedSeats,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                }
+                              },
+                            ),
+                          ],
                         );
                       },
                     ),

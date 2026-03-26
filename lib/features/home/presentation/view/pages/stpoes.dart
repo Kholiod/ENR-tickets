@@ -16,7 +16,7 @@ class Stpoes extends StatelessWidget {
             title: Text(
               "$stops Stops",
               style: const TextStyle(
-                color: Colors.red,
+                color: Color.fromARGB(255, 3, 25, 122),
                 fontWeight: FontWeight.bold,
               ),
             ),

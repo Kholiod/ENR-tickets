@@ -10,6 +10,11 @@ class CustomFormFeild extends StatefulWidget {
   final bool obscureText;
   final TextInputType keyboardType;
 
+  /// 🔥 Focus
+  final FocusNode? focusNode;
+  final FocusNode? nextFocus;
+  final VoidCallback? onSubmit;
+
   const CustomFormFeild({
     super.key,
     required this.hint,
@@ -18,6 +23,9 @@ class CustomFormFeild extends StatefulWidget {
     this.validator,
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
+    this.focusNode,
+    this.nextFocus,
+    this.onSubmit,
   });
 
   @override
@@ -42,6 +50,27 @@ class _CustomFormFeildState extends State<CustomFormFeild> {
         validator: widget.validator,
         obscureText: isObscure,
         keyboardType: widget.keyboardType,
+        focusNode: widget.focusNode,
+
+        /// 🔥 مهم جدًا
+        textInputAction: widget.nextFocus != null
+            ? TextInputAction.next
+            : TextInputAction.done,
+
+        /// 🔥 Enter Behavior
+        onFieldSubmitted: (_) {
+          if (widget.nextFocus != null) {
+            /// يروح للي بعده
+            FocusScope.of(context).requestFocus(widget.nextFocus);
+          } else {
+            /// يقفل الكيبورد
+            FocusScope.of(context).unfocus();
+
+            /// يعمل submit
+            widget.onSubmit?.call();
+          }
+        },
+
         decoration: InputDecoration(
           fillColor: formColor,
           filled: true,
@@ -61,7 +90,7 @@ class _CustomFormFeildState extends State<CustomFormFeild> {
 
           prefixIcon: Icon(widget.icon, color: iconColor),
 
-          /// 👁 Eye Icon
+          /// 👁 Password toggle
           suffixIcon: widget.obscureText
               ? IconButton(
                   icon: Icon(

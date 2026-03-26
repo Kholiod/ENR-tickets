@@ -9,25 +9,20 @@ part 'seat_selection_state.dart';
 class SeatSelectionCubit extends Cubit<SeatSelectionState> {
   SeatSelectionCubit() : super(SeatSelectionLoading());
 
-  /// simulate API
-  void loadSeats() async {
+  /// ✅ خد seatCount من بره
+  void loadSeats(int seatCount) async {
     emit(SeatSelectionLoading());
 
     try {
-      await Future.delayed(const Duration(seconds: 5));
+      await Future.delayed(const Duration(seconds: 1));
 
-      /// dummy data (كأنها جاية من API)
-      final seats = List.generate(28, (index) {
+      /// 🔥 generate حسب العدد الحقيقي
+      final seats = List.generate(seatCount, (index) {
         if (index % 5 == 0) {
-          return SeatModel(
-            number: index + 1,
-            status: SeatStatus.booked,
-          ); //semilation for booked status
+          return SeatModel(number: index + 1, status: SeatStatus.booked);
         }
-        return SeatModel(
-          number: index + 1,
-          status: SeatStatus.available,
-        ); //Semilation for availabel status
+
+        return SeatModel(number: index + 1, status: SeatStatus.available);
       });
 
       emit(SeatSelectionLoaded(seats: seats));
@@ -36,7 +31,7 @@ class SeatSelectionCubit extends Cubit<SeatSelectionState> {
     }
   }
 
-  /// chose set
+  /// اختيار كرسي
   void toggleSeat(int seatNumber) {
     if (state is! SeatSelectionLoaded) return;
 
@@ -57,13 +52,15 @@ class SeatSelectionCubit extends Cubit<SeatSelectionState> {
 
     emit(SeatSelectionLoaded(seats: updated));
   }
+
+  /// الكراسي المختارة
   List<SeatModel> getSelectedSeats() {
-  if (state is! SeatSelectionLoaded) return [];
+    if (state is! SeatSelectionLoaded) return [];
 
-  final current = state as SeatSelectionLoaded;
+    final current = state as SeatSelectionLoaded;
 
-  return current.seats
-      .where((seat) => seat.status == SeatStatus.selected)
-      .toList();
-}
+    return current.seats
+        .where((seat) => seat.status == SeatStatus.selected)
+        .toList();
+  }
 }

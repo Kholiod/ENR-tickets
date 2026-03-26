@@ -1,182 +1,311 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:enr_tickets/core/utils/pdf_generator.dart';
 
 class TicketScreen extends StatelessWidget {
   final String from;
   final String to;
   final String train;
+  final String trainType;
   final String seat;
+  final String coach;
   final String time;
   final String name;
+  final String price;
+  final String bookingType;
+  final String ticketId;
 
   const TicketScreen({
     super.key,
     required this.from,
     required this.to,
     required this.train,
+    required this.trainType,
     required this.seat,
+    required this.coach,
     required this.time,
     required this.name,
+    required this.price,
+    required this.bookingType,
+    required this.ticketId,
   });
+
+  /// 🔥 PDF Download
+  void _downloadTicket() async {
+    await generateTicketPDF(
+      from: from,
+      to: to,
+      train: train,
+      coach: coach,
+      seat: seat,
+      name: name,
+      price: price,
+      ticketId: ticketId,
+    );
+  }
+
+  /// 🔥 Share
+  void _shareTicket() {
+    Share.share(
+      "🚆 ENR Ticket\n\n"
+      "ID: $ticketId\n"
+      "Train: $train\n"
+      "Coach: $coach\n"
+      "From: $from → $to\n"
+      "Seat: $seat\n"
+      "Price: $price EGP\n"
+      "Passenger: $name",
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    String qrData =
+    final qrData =
         """
-From: $from
-To: $to
-Train: $train
-Seat: $seat
-Time: $time
-Passenger: $name
-""";
+    ID: $ticketId
+    Train: $train
+    Coach: $coach
+     Seat: $seat
+     From: $from
+     To: $to
+     """;
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade200,
+      backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
-        title: const Text("Your Ticket"),
-        centerTitle: true,
         backgroundColor: Colors.red,
+        centerTitle: true,
+        title: const Text("Your Ticket"),
+        actions: [
+          IconButton(onPressed: _shareTicket, icon: const Icon(Icons.share)),
+        ],
       ),
-      body: Center(
-        child: Container(
-          width: 320,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 15)],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              /// 🔴 Header
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                ),
-                child: Column(
-                  children: [
-                    const Text(
-                      "ENR Ticket",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            child: Container(
+              width: 350,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black12, blurRadius: 20),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  /// 🔴 HEADER
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(18),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(25),
                       ),
                     ),
-
-                    const SizedBox(height: 10),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Column(
                       children: [
-                        Text(
-                          from,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
+                        const Text(
+                          "ENR Ticket | تذكرة القطار",
+                          style: TextStyle(
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
-                        const Icon(Icons.arrow_forward, color: Colors.white),
+                        const SizedBox(height: 10),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _stationText(from),
+                            const Icon(
+                              Icons.arrow_forward,
+                              color: Colors.white,
+                            ),
+                            _stationText(to),
+                          ],
+                        ),
+
+                        const SizedBox(height: 5),
                         Text(
-                          to,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                          time,
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: DashedLine(),
+                  ),
+
+                  /// 🔲 QR
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        QrImageView(data: qrData, size: 160),
+                        const SizedBox(height: 8),
+                        Text(
+                          "ID: $ticketId",
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: DashedLine(),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  /// 📋 INFO
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: [
+                        _infoRow("Train", "القطار", train),
+                        _infoRow("Type", "نوع القطار", trainType),
+                        _infoRow("Coach", "العربة", coach),
+                        _infoRow("Seat", "المقعد", seat),
+                        _infoRow("Booking", "نوع الحجز", bookingType),
+                        _infoRow("Price", "السعر", "$price EGP"),
+                        const SizedBox(height: 10),
+                        _infoRow("Passenger", "الراكب", name),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// 🔥 BUTTONS
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size(double.infinity, 45),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            onPressed: _downloadTicket,
+                            icon: const Icon(Icons.download),
+                            label: const Text("Download"),
+                          ),
+                        ),
+
+                        const SizedBox(width: 10),
+
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black,
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size(double.infinity, 45),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            onPressed: _shareTicket,
+                            icon: const Icon(Icons.share),
+                            label: const Text("Share"),
                           ),
                         ),
                       ],
                     ),
-
-                    const SizedBox(height: 8),
-
-                    Text(
-                      time,
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              /// ✂️ dashed line
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: DashedLine(),
-              ),
-
-              /// QR
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: QrImageView(data: qrData, size: 200),
-              ),
-
-              /// ✂️ dashed line تاني
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: DashedLine(),
-              ),
-
-              const SizedBox(height: 10),
-
-              /// Info
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [Text("Train: $train"), Text("Seat: $seat")],
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      "Passenger: $name",
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              /// 🔥 Download Button
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
                   ),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Download coming soon 🔥")),
-                    );
-                  },
-                  icon: const Icon(Icons.download),
-                  label: const Text("Download Ticket"),
-                ),
+
+                  const SizedBox(height: 20),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
+
+  /// 🔥 Station Text
+  Widget _stationText(String text) {
+    return Text(
+      text,
+      style: const TextStyle(color: Colors.white, fontSize: 16),
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  /// 🔥 Info Row
+  Widget _infoRow(String en, String ar, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              en,
+              style: const TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Center(
+              child: Text(
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              ar,
+              textAlign: TextAlign.right,
+              style: const TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-/// dashed line widget
+Future<void> generateTicketPDF({
+  required String from,
+  required String to,
+  required String train,
+  required String coach,
+  required String seat,
+  required String name,
+  required String price,
+  required String ticketId,
+}) async {}
+
+/// ✂️ dashed line
 class DashedLine extends StatelessWidget {
   const DashedLine({super.key});
 
@@ -184,15 +313,18 @@ class DashedLine extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        double dashWidth = 6;
-        double dashSpace = 4;
-        int count = (constraints.constrainWidth() / (dashWidth + dashSpace))
-            .floor();
+        final dashWidth = 6.0;
+        final dashSpace = 4.0;
+        final count = (constraints.maxWidth / (dashWidth + dashSpace)).floor();
 
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: List.generate(count, (_) {
-            return Container(width: dashWidth, height: 1, color: Colors.grey);
+            return Container(
+              width: dashWidth,
+              height: 1.2,
+              color: Colors.grey.shade400,
+            );
           }),
         );
       },

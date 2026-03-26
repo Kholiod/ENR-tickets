@@ -1,9 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:enr_tickets/features/payment_way/presentation/view/payment_screens/ticket_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:enr_tickets/core/providers/user_provider.dart';
+import 'package:enr_tickets/features/payment_way/presentation/view/payment_screens/success_screen.dart';
 
 class CardPaymentScreen extends StatefulWidget {
-  const CardPaymentScreen({super.key});
+  final String train;
+  final String trainType;
+  final String coach;
+  final List seats;
+  final String price;
+
+  const CardPaymentScreen({
+    super.key,
+    required this.train,
+    required this.trainType,
+    required this.coach,
+    required this.seats,
+    required this.price,
+  });
 
   @override
   State<CardPaymentScreen> createState() => _CardPaymentScreenState();
@@ -18,7 +34,6 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
 
   bool isCvvHidden = true;
 
-  /// 🔥 Format Card
   void _formatCardNumber(String value) {
     value = value.replaceAll(" ", "");
 
@@ -32,11 +47,8 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
     );
-
-    setState(() {});
   }
 
-  /// 🔥 Detect Card Type
   Widget? _getCardIcon() {
     String input = cardNumber.text.replaceAll(" ", "");
 
@@ -54,7 +66,6 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
     return null;
   }
 
-  /// 🔥 Luhn Algorithm
   bool _isValidCard(String input) {
     input = input.replaceAll(" ", "");
 
@@ -76,7 +87,6 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
     return sum % 10 == 0;
   }
 
-  /// 🔥 Format Expiry
   void _formatExpiry(String value) {
     value = value.replaceAll("/", "");
 
@@ -92,12 +102,12 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
     );
-
-    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    String seatNumbers = widget.seats.map((e) => e.number).join(",");
+
     return Scaffold(
       appBar: AppBar(title: const Text("Card Payment"), centerTitle: true),
       body: SingleChildScrollView(
@@ -105,7 +115,7 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              /// 🔥 Card UI
+              /// 💳 CARD UI
               Container(
                 width: double.infinity,
                 height: 180,
@@ -154,12 +164,11 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
 
               const SizedBox(height: 25),
 
-              /// 🔥 FORM
+              /// 📝 FORM
               Form(
                 key: _formKey,
                 child: Column(
                   children: [
-                    /// Card Number
                     TextFormField(
                       controller: cardNumber,
                       keyboardType: TextInputType.number,
@@ -175,34 +184,22 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onChanged: (value) {
-                        _formatCardNumber(value);
-                      },
+                      onChanged: _formatCardNumber,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Enter card number";
                         }
-
                         String cleaned = value.replaceAll(" ", "");
-
-                        if (cleaned.length < 16) {
-                          return "Must be 16 digits";
-                        }
-
-                        if (!_isValidCard(cleaned)) {
-                          return "Invalid card number";
-                        }
-
+                        if (cleaned.length < 16) return "Must be 16 digits";
+                        if (!_isValidCard(cleaned)) return "Invalid card";
                         return null;
                       },
                     ),
 
                     const SizedBox(height: 15),
 
-                    /// Expiry + CVV جنب بعض
                     Row(
                       children: [
-                        /// Expiry
                         Expanded(
                           child: TextFormField(
                             controller: expiryDate,
@@ -218,44 +215,17 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            onChanged: (value) {
-                              _formatExpiry(value);
-                            },
+                            onChanged: _formatExpiry,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return "Required";
                               }
-
-                              if (!value.contains("/")) {
-                                return "Invalid";
-                              }
-
-                              final parts = value.split("/");
-                              int month = int.tryParse(parts[0]) ?? 0;
-                              int year = int.tryParse(parts[1]) ?? 0;
-
-                              if (month < 1 || month > 12) {
-                                return "Invalid";
-                              }
-
-                              final now = DateTime.now();
-                              int currentYear = now.year % 100;
-                              int currentMonth = now.month;
-
-                              if (year < currentYear ||
-                                  (year == currentYear &&
-                                      month < currentMonth)) {
-                                return "Expired";
-                              }
-
+                              if (!value.contains("/")) return "Invalid";
                               return null;
                             },
                           ),
                         ),
-
                         const SizedBox(width: 10),
-
-                        /// CVV (Hidden)
                         Expanded(
                           child: TextFormField(
                             controller: cvv,
@@ -288,9 +258,7 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                               if (value == null || value.isEmpty) {
                                 return "Required";
                               }
-                              if (value.length != 3) {
-                                return "3 digits";
-                              }
+                              if (value.length != 3) return "3 digits";
                               return null;
                             },
                           ),
@@ -300,35 +268,56 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
 
                     const SizedBox(height: 30),
 
-                    /// Pay Button
+                    /// 🔥 PAY NOW (أحمر)
                     SizedBox(
                       width: double.infinity,
                       height: 55,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
+                            String ticketId =
+                                "${widget.train}_${seatNumbers}_${DateTime.now().millisecondsSinceEpoch}";
+
+                            final user = Provider.of<UserProvider>(
+                              context,
+                              listen: false,
+                            );
+
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const TicketScreen(
-                                  from: "Cairo",
-                                  to: "Tanta",
-                                  train: "903",
-                                  seat: "A1",
-                                  time: "06:00 AM",
-                                  name: "Khaled",
+                                builder: (_) => SuccessScreen(
+                                  nextScreen: TicketScreen(
+                                    from: "Cairo",
+                                    to: "Sohag",
+                                    train: widget.train,
+                                    trainType: widget.trainType,
+                                    coach: widget.coach,
+                                    seat: seatNumbers,
+                                    time: "06:00 AM",
+                                    name: user.name.isNotEmpty
+                                        ? user.name
+                                        : "Passenger",
+                                    price: widget.price,
+                                    bookingType: "ذهاب فقط",
+                                    ticketId: ticketId,
+                                  ),
                                 ),
                               ),
                             );
                           }
                         },
-                        child: const Text("Pay Now"),
+                        child: const Text(
+                          "Pay Now",
+                          style: TextStyle(fontSize: 16),
+                        ),
                       ),
                     ),
                   ],

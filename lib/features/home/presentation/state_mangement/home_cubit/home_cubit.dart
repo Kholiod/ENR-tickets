@@ -24,7 +24,7 @@ class HomeCubit extends Cubit<HomeState> {
     "Tema",
     "Tahta",
     "Sohag",
-    "gerga",
+    "Gerga",
   ];
 
   /// Selected Data
@@ -33,10 +33,10 @@ class HomeCubit extends Cubit<HomeState> {
   String tripType = "roundTrip";
   DateTime travelDate = DateTime.now();
 
-  /// Load Stations (later from API)
+  /// Load Stations
   Future<void> getStations() async {
     try {
-      emit(HomeLoding());
+      emit(HomeLoading());
 
       await Future.delayed(const Duration(seconds: 2));
 
@@ -53,29 +53,36 @@ class HomeCubit extends Cubit<HomeState> {
         "Aswan",
       ];
 
-      emit(HomeSuccess(stations: stations));
+      /// 🔥 بدل HomeSuccess
+      emit(HomeInitial());
     } catch (e) {
       emit(HomeFailure(errorMessage: e.toString()));
     }
   }
 
-  /// Update Stations (change defult value to navigator)
+  /// Update Stations
   void updateStations(String from, String to) {
     fromStation = from;
     toStation = to;
-    emit(HomeSuccess(stations: stations));
+
+    /// 🔥 بدل HomeSuccess
+    emit(HomeInitial());
   }
 
-  /// Update Date  (change defult value date )
+  /// Update Date
   void updateDate(DateTime date) {
     travelDate = date;
-    emit(HomeSuccess(stations: stations));
+
+    /// 🔥 بدل HomeSuccess
+    emit(HomeInitial());
   }
 
   /// Update Trip Type
   void updateTripType(String type) {
     tripType = type;
-    emit(HomeSuccess(stations: stations));
+
+    /// 🔥 بدل HomeSuccess
+    emit(HomeInitial());
   }
 
   /// Search Trip
@@ -90,7 +97,6 @@ class HomeCubit extends Cubit<HomeState> {
         from: fromStation,
         to: toStation,
         date: travelDate,
-        tripType: tripType,
         stopStation: stopStations,
       ),
     );

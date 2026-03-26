@@ -4,13 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SeatGridWidget extends StatelessWidget {
-  const SeatGridWidget({super.key});
+  final int seatCount;
+  final String trainType; // 🔥 الجديد
+
+  const SeatGridWidget({
+    super.key,
+    required this.seatCount,
+    required this.trainType, // 🔥 مهم
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SeatSelectionCubit, SeatSelectionState>(
       builder: (context, state) {
-        ///  Loading
+        /// ⏳ Loading
         if (state is SeatSelectionLoading) {
           return const Expanded(
             child: Center(child: CircularProgressIndicator()),
@@ -24,15 +31,27 @@ class SeatGridWidget extends StatelessWidget {
 
         /// ✅ Success
         if (state is SeatSelectionLoaded) {
-          return Expanded(
-            child: ListView.builder(
-              itemCount: 7,
-              itemBuilder: (context, index) {
-                int left = index * 4 + 1;
-                int right = index * 4 + 3;
+          int rows = (seatCount / 4).ceil();
 
-                return SeatRowWidget(leftStart: left, rightStart: right);
-              },
+          return Expanded(
+            child: SizedBox(
+              width: double.infinity,
+              child: ListView.builder(
+                itemCount: rows,
+                itemBuilder: (context, index) {
+                  int leftStart = index * 4 + 1;
+                  int rightStart = index * 4 + 3;
+
+                  return SeatRowWidget(
+                    leftStart: leftStart,
+                    rightStart: rightStart,
+                    maxSeats: seatCount,
+
+                    /// 🔥 أهم سطر
+                    isFirstClass: trainType.contains("أولى"),
+                  );
+                },
+              ),
             ),
           );
         }
