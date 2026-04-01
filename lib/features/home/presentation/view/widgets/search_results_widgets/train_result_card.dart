@@ -1,15 +1,32 @@
+import 'package:enr_tickets/features/home/presentation/view/widgets/search_results_widgets/stops_widget.dart'
+    show StopsWidget;
 import 'package:flutter/material.dart';
 import 'package:enr_tickets/features/seat_selection/presentation/view/seat_page.dart';
-import 'package:enr_tickets/features/home/presentation/view/pages/stpoes.dart';
 
-class TrainResultCard extends StatelessWidget {
+class TrainResultCard extends StatefulWidget {
   final dynamic train;
 
   const TrainResultCard({super.key, required this.train});
 
   @override
+  State<TrainResultCard> createState() => _TrainResultCardState();
+}
+
+class _TrainResultCardState extends State<TrainResultCard> {
+  bool showStops = false;
+
+  final List<String> stopsList = [
+    "Cairo",
+    "Giza",
+    "Beni Suef",
+    "Minya",
+    "Asyut",
+    "Sohag",
+  ];
+
+  @override
   Widget build(BuildContext context) {
-    final stopsList = ["Cairo", "Giza", "Beni Suef", "Minya", "Asyut", "Sohag"];
+    final train = widget.train;
 
     return Card(
       elevation: 3,
@@ -130,12 +147,9 @@ class TrainResultCard extends StatelessWidget {
 
             InkWell(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => Stpoes(stopStations: stopsList),
-                  ),
-                );
+                setState(() {
+                  showStops = !showStops;
+                });
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -149,9 +163,21 @@ class TrainResultCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  const SizedBox(width: 5),
+                  Icon(
+                    showStops
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                  ),
                 ],
               ),
             ),
+
+            if (showStops)
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: StopsWidget(stops: stopsList),
+              ),
           ],
         ),
       ),

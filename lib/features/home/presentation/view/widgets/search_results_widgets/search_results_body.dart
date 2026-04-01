@@ -77,14 +77,7 @@ class SearchResultsBody extends StatelessWidget {
                           duration: train.duration, //done
                           availableTickets: train.availableTickets, //done
                           stops: stops, //done
-                          stopStations: [
-                            "Cairo",
-                            "Giza",
-                            "Beni Suef",
-                            "Minya",
-                            "Asyut",
-                            "Sohag",
-                          ],
+
                           onBuy: () {
                             log("Bay Ticket");
                           },

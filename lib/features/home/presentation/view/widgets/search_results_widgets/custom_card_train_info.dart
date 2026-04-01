@@ -1,7 +1,7 @@
 import 'package:enr_tickets/features/home/presentation/view/widgets/search_results_widgets/stops_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:enr_tickets/features/home/presentation/view/pages/stpoes.dart';
+import 'package:enr_tickets/features/home/presentation/view/pages/stpos.dart';
 import 'package:enr_tickets/features/home/presentation/view/widgets/search_results_widgets/available_tickets_widget.dart';
 import 'package:enr_tickets/features/home/presentation/view/widgets/search_results_widgets/ticket_text_button_widget.dart';
 import 'package:enr_tickets/features/home/presentation/view/widgets/settings_widgets/stations_widget_info.dart';
