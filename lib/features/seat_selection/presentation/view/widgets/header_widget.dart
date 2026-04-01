@@ -10,10 +10,9 @@ class HeaderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        /// 🔥 Steps (تم تصغيره)
         Container(
           alignment: Alignment.center,
-          height: 30, // 👈 بدل MediaQuery
+          height: 30,
 
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -35,7 +34,7 @@ class HeaderWidget extends StatelessWidget {
               Text(
                 "1 Timetable",
                 style: Styles.textStyle19.copyWith(
-                  fontSize: 13, // 🔥 صغر الخط
+                  fontSize: 13,
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
@@ -62,9 +61,8 @@ class HeaderWidget extends StatelessWidget {
           ),
         ),
 
-        /// 🔥 Legend (تم تصغيره)
         Container(
-          height: 35, // 👈 أصغر
+          height: 35,
           color: Colors.white,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -83,7 +81,7 @@ class HeaderWidget extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 10, // 🔥 أصغر
+          width: 10,
           height: 10,
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
@@ -92,10 +90,7 @@ class HeaderWidget extends StatelessWidget {
             border: Border.all(width: 0.5),
           ),
         ),
-        Text(
-          text,
-          style: const TextStyle(fontSize: 12), // 🔥 أصغر
-        ),
+        Text(text, style: const TextStyle(fontSize: 12)),
       ],
     );
   }

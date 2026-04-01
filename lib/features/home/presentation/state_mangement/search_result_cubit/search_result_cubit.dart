@@ -16,7 +16,6 @@ class SearchResultCubit extends Cubit<SearchResultState> {
       await Future.delayed(const Duration(seconds: 1));
 
       final trains = <TrainInfo>[
-        /// 🚆 Train 185
         TrainInfo(
           trainNumber: 185,
           trainName: "روسي مكيف",
@@ -40,7 +39,6 @@ class SearchResultCubit extends Cubit<SearchResultState> {
           ],
         ),
 
-        /// 🚆 Train 2009
         TrainInfo(
           trainNumber: 2009,
           trainName: "أولى/تانية اسباني مطور",
@@ -64,7 +62,6 @@ class SearchResultCubit extends Cubit<SearchResultState> {
           ],
         ),
 
-        /// 🚆 Train 2031
         TrainInfo(
           trainNumber: 2031,
           trainName: "أولى/تانية تالجو",

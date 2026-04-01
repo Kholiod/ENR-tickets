@@ -1,12 +1,13 @@
+import 'package:flutter/material.dart';
 import 'package:enr_tickets/core/utils/strings.dart';
 import 'package:enr_tickets/core/utils/validators.dart';
 import 'package:enr_tickets/core/widget/custom_form_feild.dart';
-import 'package:flutter/material.dart';
 
-class FormFeildViewLogin extends StatelessWidget {
+class FormFieldViewLogin extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
-  const FormFeildViewLogin({
+
+  const FormFieldViewLogin({
     super.key,
     required this.emailController,
     required this.passwordController,
@@ -14,25 +15,28 @@ class FormFeildViewLogin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fields = [
+      (email, Icons.email, emailController, false, Validators.emailValidator),
+      (
+        password,
+        Icons.lock_outline,
+        passwordController,
+        true,
+        Validators.passwordValidator,
+      ),
+    ];
+
     return Column(
-      children: [
-        //email 
-        CustomFormFeild(
-          hint: email,
-          icon: Icons.email,
-          controller: emailController,
-          keyboardType: TextInputType.emailAddress,
-          validator: Validators.emailValidator,
-        ),
-        //password
-        CustomFormFeild(
-          hint: password,
-          icon: Icons.lock_outline,
-          controller: passwordController,
-          obscureText: true,
-          validator: Validators.passwordValidator,
-        ),
-      ],
+      children: fields.map((f) {
+        return CustomFormField(
+          hint: f.$1,
+          icon: f.$2,
+          controller: f.$3,
+          obscureText: f.$4,
+          validator: f.$5,
+          keyboardType: f.$4 ? TextInputType.text : TextInputType.emailAddress,
+        );
+      }).toList(),
     );
   }
 }

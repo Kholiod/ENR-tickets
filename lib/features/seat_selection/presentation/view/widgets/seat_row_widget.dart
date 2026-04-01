@@ -1,27 +1,24 @@
-import 'package:enr_tickets/core/utils/colors.dart';
 import 'package:enr_tickets/features/seat_selection/data/model/seatMode.dart';
 import 'package:enr_tickets/features/seat_selection/presentation/state_mangement/cubit/seat_selection_cubit.dart';
 import 'package:enr_tickets/features/seat_selection/presentation/view/widgets/convert_status.dart';
 import 'package:enr_tickets/features/seat_selection/presentation/view/widgets/seat_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gap/gap.dart';
 
 class SeatRowWidget extends StatelessWidget {
   final int leftStart;
   final int rightStart;
   final int maxSeats;
-  final bool isFirstClass; // 🔥 الجديد
+  final bool isFirstClass;
 
   const SeatRowWidget({
     super.key,
     required this.leftStart,
     required this.rightStart,
     required this.maxSeats,
-    required this.isFirstClass, // 🔥
+    required this.isFirstClass,
   });
 
-  /// 🔥 safe search
   SeatModel? getSeat(List<SeatModel> seats, int number) {
     try {
       return seats.firstWhere((e) => e.number == number);
@@ -45,7 +42,6 @@ class SeatRowWidget extends StatelessWidget {
         final seat3 = getSeat(seats, rightStart);
         final seat4 = getSeat(seats, rightStart + 1);
 
-        /// 🔥 reusable seat builder
         Widget buildSeat(SeatModel? seat) {
           if (seat == null || seat.number > maxSeats) {
             return const SizedBox(width: 45);
@@ -65,7 +61,6 @@ class SeatRowWidget extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              /// 👈 LEFT (2 seats)
               Row(
                 children: [
                   buildSeat(seat1),
@@ -76,7 +71,6 @@ class SeatRowWidget extends StatelessWidget {
 
               const SizedBox(width: 15),
 
-              /// 🚆 AISLE
               Container(
                 width: 25,
                 height: 45,
@@ -96,9 +90,8 @@ class SeatRowWidget extends StatelessWidget {
 
               const SizedBox(width: 15),
 
-              /// 👉 RIGHT SIDE
               isFirstClass
-                  ? buildSeat(seat3) // 🔥 كرسي واحد بس
+                  ? buildSeat(seat3)
                   : Row(
                       children: [
                         buildSeat(seat3),

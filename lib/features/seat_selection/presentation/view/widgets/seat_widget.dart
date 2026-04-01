@@ -43,10 +43,8 @@ class SeatWidget extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            /// 💺 الكرسي (الشكل القديم)
             Icon(Icons.event_seat, size: 40, color: iconColor),
 
-            /// 🔢 رقم الكرسي (واضح في النص)
             Text(
               number.toString(),
               style: TextStyle(

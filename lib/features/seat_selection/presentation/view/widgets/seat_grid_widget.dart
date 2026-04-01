@@ -5,12 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SeatGridWidget extends StatelessWidget {
   final int seatCount;
-  final String trainType; // 🔥 الجديد
+  final String trainType;
 
   const SeatGridWidget({
     super.key,
     required this.seatCount,
-    required this.trainType, // 🔥 مهم
+    required this.trainType,
   });
 
   @override
@@ -24,12 +24,10 @@ class SeatGridWidget extends StatelessWidget {
           );
         }
 
-        /// ❌ Error
         if (state is SeatSelectionFailure) {
           return Expanded(child: Center(child: Text(state.error)));
         }
 
-        /// ✅ Success
         if (state is SeatSelectionLoaded) {
           int rows = (seatCount / 4).ceil();
 
@@ -46,8 +44,6 @@ class SeatGridWidget extends StatelessWidget {
                     leftStart: leftStart,
                     rightStart: rightStart,
                     maxSeats: seatCount,
-
-                    /// 🔥 أهم سطر
                     isFirstClass: trainType.contains("أولى"),
                   );
                 },

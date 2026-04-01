@@ -11,17 +11,33 @@ class SuccessScreen extends StatefulWidget {
 }
 
 class _SuccessScreenState extends State<SuccessScreen> {
+  Timer? _timer;
+
   @override
   void initState() {
     super.initState();
 
-    /// 🔥 Auto redirect بعد 3 ثواني
-    Future.delayed(const Duration(seconds: 3), () {
+    _timer = Timer(const Duration(seconds: 3), () {
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => widget.nextScreen),
       );
     });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _goNext() {
+    if (!mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => widget.nextScreen),
+    );
   }
 
   @override
@@ -34,51 +50,37 @@ class _SuccessScreenState extends State<SuccessScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              /// ✅ ICON
               Container(
-                width: 120,
-                height: 120,
+                width: 110,
+                height: 110,
                 decoration: BoxDecoration(
                   color: Colors.green.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.check, color: Colors.green, size: 70),
+                child: const Icon(Icons.check, color: Colors.green, size: 65),
               ),
-
-              const SizedBox(height: 25),
-
-              /// 🔥 TEXT
+              const SizedBox(height: 20),
               const Text(
                 "Payment Successful",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-
-              const SizedBox(height: 10),
-
+              const SizedBox(height: 8),
               const Text(
-                "Redirecting to your ticket...",
+                "Redirecting...",
                 style: TextStyle(color: Colors.grey),
               ),
-
-              const SizedBox(height: 40),
-
-              /// 🔴 BUTTON (لو عايز يروح بسرعة)
+              const SizedBox(height: 30),
               SizedBox(
                 width: double.infinity,
-                height: 55,
+                height: 50,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => widget.nextScreen),
-                    );
-                  },
+                  onPressed: _goNext,
                   child: const Text("View Ticket"),
                 ),
               ),

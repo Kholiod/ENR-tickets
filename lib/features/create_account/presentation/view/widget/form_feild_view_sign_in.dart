@@ -8,7 +8,6 @@ class FormFeildViewSignIn extends StatefulWidget {
   final TextEditingController passwordController;
   final TextEditingController confirmPasswordController;
 
-  /// 🔥 مهم
   final VoidCallback onSubmit;
 
   const FormFeildViewSignIn({
@@ -46,7 +45,7 @@ class _FormFeildViewSignInState extends State<FormFeildViewSignIn> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CustomFormFeild(
+        CustomFormField(
           hint: "Name",
           icon: Icons.person,
           controller: widget.nameController,
@@ -54,7 +53,7 @@ class _FormFeildViewSignInState extends State<FormFeildViewSignIn> {
           nextFocus: emailFocus,
         ),
 
-        CustomFormFeild(
+        CustomFormField(
           hint: "Email",
           icon: Icons.email,
           controller: widget.emailController,
@@ -62,7 +61,7 @@ class _FormFeildViewSignInState extends State<FormFeildViewSignIn> {
           nextFocus: phoneFocus,
         ),
 
-        CustomFormFeild(
+        CustomFormField(
           hint: "Phone",
           icon: Icons.phone,
           controller: widget.phoneController,
@@ -70,7 +69,7 @@ class _FormFeildViewSignInState extends State<FormFeildViewSignIn> {
           nextFocus: passwordFocus,
         ),
 
-        CustomFormFeild(
+        CustomFormField(
           hint: "Password",
           icon: Icons.lock,
           controller: widget.passwordController,
@@ -79,14 +78,13 @@ class _FormFeildViewSignInState extends State<FormFeildViewSignIn> {
           nextFocus: confirmFocus,
         ),
 
-        CustomFormFeild(
+        CustomFormField(
           hint: "Confirm Password",
           icon: Icons.lock,
           controller: widget.confirmPasswordController,
           obscureText: true,
           focusNode: confirmFocus,
 
-          /// 🔥 Enter الأخير
           onSubmit: () {
             FocusScope.of(context).unfocus();
             widget.onSubmit();

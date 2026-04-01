@@ -1,3 +1,4 @@
+import 'package:enr_tickets/features/home/presentation/view/widgets/search_results_widgets/stops_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:enr_tickets/features/home/presentation/view/pages/stpoes.dart';
@@ -8,17 +9,15 @@ import 'package:enr_tickets/features/home/presentation/view/widgets/search_resul
 import 'package:enr_tickets/features/seat_selection/presentation/view/seat_page.dart';
 
 class CustomCardTrainInfo extends StatelessWidget {
-  final int trainNumber;
-  final String classType;
-  final String fromStation;
-  final String toStation;
-  final String departTime;
-  final String arriveTime;
+  final int trainNumber, availableTickets, stops;
+  final String classType,
+      fromStation,
+      toStation,
+      departTime,
+      arriveTime,
+      arriveDate,
+      duration;
   final DateTime departDate;
-  final String arriveDate;
-  final String duration;
-  final int availableTickets;
-  final int stops;
   final VoidCallback onBuy;
   final List<String> stopStations;
 
@@ -39,156 +38,143 @@ class CustomCardTrainInfo extends StatelessWidget {
     required this.stopStations,
   });
 
+  Widget get _divider =>
+      Divider(height: 18, thickness: .5, color: Colors.grey.shade300);
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Container(
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: const [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 14,
-              offset: const Offset(0, 6),
+              blurRadius: 10,
+              offset: Offset(0, 4),
+              color: Colors.black12,
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /// 🔴 Train Number + Type
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TrainNumberRow(trainNumber: trainNumber),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _header(),
+            _divider,
+            _stations(),
+            _divider,
+            _info(),
+            _divider,
+            _actions(context),
 
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      classType,
-                      style: const TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const Gap(12),
-              const Divider(thickness: 0.7),
-
-              /// 📍 Stations
-              StationsRow(
-                departTime: departTime,
-                departDate: departDate,
-                fromStation: fromStation,
-                arriveTime: arriveTime,
-                arriveDate: arriveDate,
-                toStation: toStation,
-              ),
-
-              const Gap(12),
-              const Divider(thickness: 0.7),
-
-              /// ⏱ Duration + Available
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.timer, size: 18, color: Colors.grey),
-                      const SizedBox(width: 6),
-                      Text(
-                        duration,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ],
-                  ),
-                  AvailableTicketsWidget(availableTickets: availableTickets),
-                ],
-              ),
-
-              const Gap(12),
-              const Divider(thickness: 0.7),
-
-              /// 🔘 Buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: TicketTextButtonWidget(
-                      text: "Stops ($stops)",
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => Stpoes(
-                              stops: stops,
-                              stopStations: stopStations,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-
-                  Container(height: 25, width: 1, color: Colors.grey.shade300),
-
-                  Expanded(
-                    child: TicketTextButtonWidget(
-                      text: "Choose Seat",
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const SeatPage()),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-
-              const Gap(16),
-
-              /// 🔥 BUY BUTTON
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    elevation: 3,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  onPressed: onBuy,
-                  child: const Text(
-                    "Buy Ticket",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      letterSpacing: 0.6,
-                    ),
-                  ),
-                ),
-              ),
+            if (stopStations.isNotEmpty) ...[
+              const Gap(10),
+              StopsWidget(stops: stopStations),
             ],
-          ),
+
+            const Gap(12),
+            _buyButton(),
+          ],
         ),
       ),
     );
   }
+
+  Widget _header() => Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      TrainNumberRow(trainNumber: trainNumber),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.red.withOpacity(.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          classType,
+          style: const TextStyle(
+            color: Colors.red,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    ],
+  );
+
+  Widget _stations() => StationsRow(
+    departTime: departTime,
+    departDate: departDate,
+    fromStation: fromStation,
+    arriveTime: arriveTime,
+    arriveDate: arriveDate,
+    toStation: toStation,
+  );
+
+  Widget _info() => Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Row(
+        children: [
+          const Icon(Icons.timer, size: 16, color: Colors.grey),
+          const SizedBox(width: 5),
+          Text(
+            duration,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+      AvailableTicketsWidget(availableTickets: availableTickets),
+    ],
+  );
+
+  Widget _actions(BuildContext context) => Row(
+    children: [
+      Expanded(
+        child: TicketTextButtonWidget(
+          text: "Stops ($stops)",
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => Stpoes(stops: stops, stopStations: stopStations),
+            ),
+          ),
+        ),
+      ),
+      Container(height: 20, width: 1, color: Colors.grey.shade300),
+      Expanded(
+        child: TicketTextButtonWidget(
+          text: "Choose Seat",
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => SeatPage(
+                trainNumber: trainNumber,
+                from: fromStation,
+                to: toStation,
+              ),
+            ),
+          ),
+        ),
+      ),
+    ],
+  );
+
+  Widget _buyButton() => SizedBox(
+    width: double.infinity,
+    height: 45,
+    child: ElevatedButton(
+      onPressed: onBuy,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.red,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      child: const Text(
+        "Buy Ticket",
+        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+      ),
+    ),
+  );
 }
